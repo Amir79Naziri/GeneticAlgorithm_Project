@@ -22,8 +22,10 @@ def genetic_algorithm():
     return population
 
 
-def is_convergent(population, limit=0.05):
+def is_convergent(population, limit=1):
     weights = [fitness_function(_) for _ in population]
+    print(weights)
+    print(np.sqrt(np.var(np.array(weights))))
     if np.sqrt(np.var(np.array(weights))) > limit:
         return False
     else:
@@ -70,41 +72,81 @@ def fitness_function(sample):
     if sample in FITNESS_MEMORY:
         return FITNESS_MEMORY[sample]
 
-    steps = 0
+    cost = 0
+    bad_indexes = list()
+
     for i in range(len(LEVEL)):
-        current_action = sample[i]
 
         if i + 1 == len(LEVEL):
-            steps += 1
+            if sample[i] == '0':
+                cost += 0
+            elif sample[i] == '1':
+                cost -= 1
+            elif sample[i] == '2':
+                cost += 0.5
 
-        elif current_action == '0':
-            if LEVEL[i + 1] == '_':
-                steps += 1
-            elif LEVEL[i + 1] == 'M':
-                steps += 2
+        elif LEVEL[i + 1] == '_':
+            if sample[i] == '0':
+                cost += 0
+            elif sample[i] == '1' and sample[i + 1] != '1':
+                cost += 0.5
+            elif sample[i] == '1' and sample[i + 1] == '1':
+                bad_indexes.append(i + 1)
+            elif sample[i] == '2':
+                cost += 0.5
+
+        elif LEVEL[i + 1] == 'M':
+            if sample[i] == '0':
+                cost -= 2
+            elif sample[i] == '1' and sample[i + 1] != '1':
+                cost += 0.5
+            elif sample[i] == '1' and sample[i + 1] == '1':
+                bad_indexes.append(i + 1)
+            elif sample[i] == '2':
+                cost -= 1.5
+
+        elif LEVEL[i + 1] == 'G':
+            if sample[i] == '0':
+                if i - 1 >= 0 and sample[i - 1] == '1':
+                    cost -= 2
+                else:
+                    bad_indexes.append(i + 1)
+            elif sample[i] == '1' and sample[i + 1] != '1':
+                cost += 0
+            elif sample[i] == '1' and sample[i + 1] == '1':
+                bad_indexes.append(i + 1)
+            elif sample[i] == '2':
+                bad_indexes.append(i + 1)
+
+        elif LEVEL[i + 1] == 'L':
+            if sample[i] == '0':
+                bad_indexes.append(i + 1)
+            elif sample[i] == '1' and sample[i + 1] != '1':
+                bad_indexes.append(i + 1)
+            elif sample[i] == '1' and sample[i + 1] == '1':
+                bad_indexes.append(i + 1)
+            elif sample[i] == '2':
+                if sample[i + 1] == '1':
+                    bad_indexes.append(i + 1)
+                else:
+                    cost += 0
+
+    if len(bad_indexes) == 0:
+        cost -= 4
+        max_step = len(LEVEL)
+    else:
+        part_steps = list()
+        for i in range(len(bad_indexes)):
+            if i - 1 == 0:
+                part_steps.append(len(LEVEL[0:bad_indexes[i]]))
             else:
-                break
+                part_steps.append(len(LEVEL[bad_indexes[i - 1] + 1:bad_indexes[i]]))
 
-        elif current_action == '1':
-            if LEVEL[i + 1] == '_':
-                steps += 1
-            elif LEVEL[i + 1] == 'G':
-                steps += 1
-            else:
-                break
+        max_step = max(part_steps)
 
-        elif current_action == '2':
-            if LEVEL[i + 1] == '_':
-                steps += 1
-            elif LEVEL[i + 1] == 'L':
-                steps += 1
-            else:
-                break
+    fitness_value = max_step - cost
 
-    if steps == len(LEVEL):
-        steps += 7
-
-    FITNESS_MEMORY[sample] = steps
+    FITNESS_MEMORY[sample] = fitness_value
 
     return FITNESS_MEMORY[sample]
 
