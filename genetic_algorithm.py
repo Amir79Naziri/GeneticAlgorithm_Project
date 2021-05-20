@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import statistic_plot as plt
 
 CHROMOSOME_NUMBER = 200
 LEVEL = '____G_ML__G_'
@@ -8,6 +9,8 @@ FITNESS_MEMORY = dict()
 
 def genetic_algorithm():
     population = population_generator()
+    population_stats_per_generation = list()
+    population_stats_per_generation.append(population_fitness_stats(population))
     while not is_convergent(population):
         new_population = list()
         for _ in range(len(population) - 10):
@@ -19,7 +22,13 @@ def genetic_algorithm():
             new_population.append(child)
         population.sort(reverse=True, key=fitness_function)
         population = population[0:10] + new_population
-    return population
+        population_stats_per_generation.append(population_fitness_stats(population))
+    return population, population_stats_per_generation
+
+
+def population_fitness_stats(population):
+    weights = [fitness_function(_) for _ in population]
+    return [np.mean(weights), min(weights), max(weights)]
 
 
 def is_convergent(population, limit=1):
@@ -165,6 +174,8 @@ def mutate(sample):
 
 if __name__ == '__main__':
     # LEVEL = input()
-    pop = genetic_algorithm()
+    pop, stats = genetic_algorithm()
     for j in pop:
         print(j)
+    plt.plot(stats)
+
