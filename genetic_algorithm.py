@@ -36,16 +36,9 @@ def population_generator():
     global CHROMOSOME_NUMBER
     initial_population = list()
     for _ in range(CHROMOSOME_NUMBER):
+        sample_list = random.choices(['0', '1', '2'], (0.7, 0.15, 0.15), k=len(LEVEL))
         sample = ''
-        for _ in range(len(LEVEL)):
-            random_number = random.random()
-            if random_number <= 0.7:
-                sample += '0'
-            elif 0.7 < random_number <= 0.85:
-                sample += '1'
-            else:
-                sample += '2'
-
+        sample = sample.join(sample_list)
         initial_population.append(sample)
 
     return initial_population
