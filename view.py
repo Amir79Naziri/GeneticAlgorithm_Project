@@ -34,12 +34,21 @@ flag_png = pygame.transform.scale(flag_image, (100, 300))
 
 def update_map(move, level):
     global mario
+    game_state = True
     if len(level) > 14:
         if mario.position < 7:
             mario.position += 1
     else:
         mario.position += 1
     mario.real_position += 1
+    if mario.real_position < len(level):
+        if level[mario.real_position] == 'G':
+            if move != '1' and mario.state != 'Jump':
+                game_state = False
+        elif level[mario.real_position] == 'L':
+            if move != '2':
+                game_state = False
+
     if move == '0':
         mario.state = 'Normal'
     elif move == '1':
@@ -47,16 +56,17 @@ def update_map(move, level):
     else:
         mario.state = 'Dock'
 
-    if level[mario.real_position] == 'M':
+    if level[mario.real_position] == 'M' and mario.state != 'Jump':
         new_level = level[:mario.real_position] + '_' + level[mario.real_position + 1:]
     elif level[mario.real_position] == 'G' and mario.state != 'Jump':
         new_level = level[:mario.real_position] + 'g' + level[mario.real_position + 1:]
     else:
         new_level = level
-    return new_level
+
+    return new_level, game_state
 
 
-def redraw_window(window, sample_slot):
+def redraw_window(window, sample_slot, game_state):
     global ground_image
     global mario
     window.fill((108, 136, 255))
@@ -83,13 +93,19 @@ def redraw_window(window, sample_slot):
                 window.blit(mario.get_image(), (counter * 100, 0))
         counter += 1
 
+    if not game_state:
+        font = pygame.font.SysFont(None, 80)
+        text_surf = font.render('Lost', True, (255, 0, 0))
+        text_surf.set_alpha(127)
+        window.blit(text_surf, (650, 25))
+
     pygame.display.update()
 
 
 def start(level, sample):
-
     pygame.init()
     clock = pygame.time.Clock()
+    level = level + 'F'
     if len(level) > 14:
         window = pygame.display.set_mode((1400, 400))
     else:
@@ -99,24 +115,29 @@ def start(level, sample):
     pygame.display.set_icon(mario.get_image())
 
     pos = 0
+    game_state = True
     length = len(level)
     while pos < length:
         clock.tick(27)
         if length > 14:
             if pos < 7:
-                redraw_window(window, level[0:14])
+                redraw_window(window, level[0:14], game_state)
             else:
-                redraw_window(window, level[pos - 7: pos + 7])
+                redraw_window(window, level[pos - 7: pos + 7], game_state)
         else:
-            redraw_window(window, level)
-        level = update_map(sample[pos], level)
+            redraw_window(window, level, game_state)
+        if not game_state:
+            pygame.time.delay(2500)
+            break
+        if pos < len(sample):
+            level, game_state = update_map(sample[pos], level)
         pygame.time.delay(450)
         pos += 1
-
+    pygame.time.delay(2500)
     pygame.quit()
 
 
 if __name__ == '__main__':
-    test_level = "___M____MGM________M_M______M____L___G____M____L__G__GM__L____ML__G___G___L___G__G___M__L___G____M__F"
+    test_level = "___M____MGM________M_M______M____L___G____M____L__G__GM__L____ML__G___G___L___G__G___M__L___G____M__"
     test_sample = '0000000010000000000000000000000020010000000000200101000020000020100010000200010100000002001000000001'
     start(test_level, test_sample)
