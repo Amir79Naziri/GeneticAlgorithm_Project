@@ -1,9 +1,10 @@
 import random
 import numpy as np
 import statistic_plot as plt
+from time import process_time_ns
 
 CHROMOSOME_NUMBER = 200
-LEVEL = '____G_ML__G_'
+LEVEL = None
 FITNESS_MEMORY = dict()
 
 
@@ -11,7 +12,9 @@ def genetic_algorithm():
     population = population_generator()
     population_stats_per_generation = list()
     population_stats_per_generation.append(population_fitness_stats(population))
-    while not is_convergent(population):
+    start_time = process_time_ns()
+    while not is_convergent(population, (lambda t: (3.33333 * (10 ** -11)) * t)(process_time_ns() -
+                                                                                start_time)):
         new_population = list()
         for _ in range(len(population) - 10):
             sample_x = random_selection(population)
@@ -26,12 +29,23 @@ def genetic_algorithm():
     return population, population_stats_per_generation
 
 
+def max_fitness_population(population):
+    max_sample = None
+    max_fitness = -1 * np.inf
+    for sample in population:
+        if fitness_function(sample) > max_fitness:
+            max_sample = sample
+            max_fitness = fitness_function(sample)
+    return max_sample
+
+
 def population_fitness_stats(population):
     weights = [fitness_function(_) for _ in population]
     return [np.mean(weights), min(weights), max(weights)]
 
 
-def is_convergent(population, limit=1):
+def is_convergent(population, limit):
+    print(limit)
     weights = [fitness_function(_) for _ in population]
     print(weights)
     print(np.sqrt(np.var(np.array(weights))))
@@ -81,7 +95,7 @@ def fitness_function(sample):
 
         if i + 1 == len(LEVEL):
             if sample[i] == '0':
-                cost += 0
+                cost -= 0.25
             elif sample[i] == '1':
                 cost -= 1
             elif sample[i] == '2':
@@ -89,7 +103,7 @@ def fitness_function(sample):
 
         elif LEVEL[i + 1] == '_':
             if sample[i] == '0':
-                cost += 0
+                cost -= 0.25
             elif sample[i] == '1' and sample[i + 1] != '1':
                 cost += 0.5
             elif sample[i] == '1' and sample[i + 1] == '1':
@@ -131,12 +145,16 @@ def fitness_function(sample):
                 if sample[i + 1] == '1':
                     bad_indexes.append(i + 1)
                 else:
-                    cost += 0
+                    cost -= 0.25
 
     if len(bad_indexes) == 0:
-        cost -= 4
+        cost -= 5
         max_step = len(LEVEL)
     else:
+        if len(bad_indexes) > 5:
+            cost += 7
+        elif len(bad_indexes) > 3:
+            pass
         part_steps = list()
         for i in range(len(bad_indexes)):
             if i - 1 == 0:
@@ -173,9 +191,8 @@ def mutate(sample):
 
 
 if __name__ == '__main__':
-    # LEVEL = input()
+    LEVEL = input()
     pop, stats = genetic_algorithm()
     for j in pop:
         print(j)
     plt.plot(stats)
-
