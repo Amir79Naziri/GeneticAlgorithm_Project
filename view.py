@@ -133,11 +133,12 @@ def start(level, sample):
             level, game_state = update_map(sample[pos], level)
         pygame.time.delay(450)
         pos += 1
+
+        for event1 in pygame.event.get():
+            if event1.type == pygame.QUIT:
+                pygame.quit()
+                exit(0)
+
     pygame.time.delay(2500)
     pygame.quit()
 
-
-if __name__ == '__main__':
-    test_level = "___M____MGM________M_M______M____L___G____M____L__G__GM__L____ML__G___G___L___G__G___M__L___G____M__"
-    test_sample = '0000000010000000000000000000000020010000000000200101000020000020100010000200010100000002001000000001'
-    start(test_level, test_sample)
