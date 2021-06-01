@@ -35,10 +35,10 @@ def population_fitness_stats(population):
 
 
 def is_convergent(population, limit):
-    print(limit)
+    print('\nlimit :', limit)
     weights = [fitness_function(_) for _ in population]
     print(weights)
-    print(np.sqrt(np.var(np.array(weights))))
+    print('deviation :', np.sqrt(np.var(np.array(weights))))
     if np.sqrt(np.var(np.array(weights))) > limit:
         return False
     else:
@@ -186,47 +186,47 @@ def max_fitness(population):
 
 
 if __name__ == '__main__':
-    # LEVEL = input()
-    # count = 0
-    # pop, stats = genetic_algorithm()
-    # print('\n\n\nWhich one would you rather to see?')
-    # print('1) Final population')
-    # print('2) Best chromosome in population')
-    # cmd1 = int(input())
-    # print("How would you like to plot the stats of the algorithm?")
-    # print('1) Plot average fitness values')
-    # print('2) Plot average, min and max fitness values')
-    # cmd2 = int(input())
-    #
-    # if cmd2 == 1:
-    #     plt.plot(stats)
-    # elif cmd2 == 2:
-    #     plt.plot(stats, True)
-    #
-    # if cmd1 == 1:
-    #     for i in range(len(pop)):
-    #         print('{}: {}'.format(i, pop[i]))
-    #     st = start(LEVEL, pop[int(input('Enter chromosome number for graphical simulation: '))])
-    # else:
-    #     bst = max_fitness(pop)
-    #     print('Chromosome with highest fitness value:')
-    #     print(bst)
-    #     st = start(LEVEL, bst)
-    #
-    # if not st:
-    #     print('The game was lost!')
-    # else:
-    #     print('The game was won.')
-
     LEVEL = input()
     count = 0
-    for _ in range(5):
-        pop, stats = genetic_algorithm()
+    pop, stats = genetic_algorithm()
+    print('\n\n\nWhich one would you rather to see?')
+    print('1) Final population')
+    print('2) Best chromosome in population')
+    cmd1 = int(input())
+    print("How would you like to plot the stats of the algorithm?")
+    print('1) Plot average fitness values')
+    print('2) Plot average, min and max fitness values')
+    cmd2 = int(input())
+
+    if cmd2 == 1:
+        plt.plot(stats)
+    elif cmd2 == 2:
+        plt.plot(stats, True)
+
+    if cmd1 == 1:
+        for i in range(len(pop)):
+            print('{}: {}'.format(i, pop[i]))
+        st = start(LEVEL, pop[int(input('Enter chromosome number for graphical simulation: '))])
+    else:
         bst = max_fitness(pop)
         print('Chromosome with highest fitness value:')
         print(bst)
         st = start(LEVEL, bst)
-        if not st:
-            count += 1
-    print("Times game was lost:")
-    print(count)
+
+    if not st:
+        print('The game was lost!')
+    else:
+        print('The game was won.')
+
+    # LEVEL = input()
+    # count = 0
+    # for _ in range(5):
+    #     pop, stats = genetic_algorithm()
+    #     bst = max_fitness(pop)
+    #     print('Chromosome with highest fitness value:')
+    #     print(bst)
+    #     st = start(LEVEL, bst)
+    #     if not st:
+    #         count += 1
+    # print("Times game was lost:")
+    # print(count)
