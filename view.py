@@ -17,7 +17,7 @@ class Mario:
             return self.__mario_jump_image
 
 
-mario = Mario()
+mario = None
 ground_image = pygame.image.load('pic/ground.png')
 goomba_image = pygame.image.load('pic/goomba.png')
 lakitu_image = pygame.image.load('pic/lakitu.png')
@@ -103,6 +103,8 @@ def redraw_window(window, sample_slot, game_state):
 
 
 def start(level, sample):
+    global mario
+    mario = Mario()
     pygame.init()
     clock = pygame.time.Clock()
     level = level + 'F'
@@ -141,4 +143,5 @@ def start(level, sample):
 
     pygame.time.delay(2500)
     pygame.quit()
+    return game_state
 
